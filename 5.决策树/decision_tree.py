@@ -141,7 +141,7 @@ class C45(DecisionTree):
 
 
 if __name__ == '__main__':
-    d = pd.read_csv("/Users/0g/Documents/2425s/learning/统计学习算法/5.决策树/data1.csv", header=0, index_col=0)
+    d = pd.read_csv("/Users/0g/Documents/2425s/learning/StatisticalLearningMethods/5.决策树/data1.csv", header=0, index_col=0)
     tree = ID_3(d, '类别', 0)
     tree.cutting_tree_iteration(tree.tree, 1)
     print(1)
