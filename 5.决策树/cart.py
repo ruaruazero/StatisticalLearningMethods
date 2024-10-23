@@ -130,5 +130,31 @@ class CART:
         p = (counts / len(d)) ** 2
         return 1 - p.sum()
 
+    def predict(self, test_x: pd.DataFrame):
+        pre_y = []
+        if self.classify:
+            for index, line in test_x.iterrows():
+                node = self.tree
+                while True:
+                    if node.is_leaf:
+                        pre_y.append(node.value)
+                        break
+                    if line[node.attr] == node.value:
+                        node = node.left
+                    else:
+                        node = node.right
+            return np.array(pre_y)
+        else:
+            pass
+
+    def pre_loss(self, tdata: pd.DataFrame):
+        test_x = tdata.drop(self.target, inplace=False)
+        test_y = tdata[self.target].to_numpy()
+        pred_y = self.predict(test_x)
+        # 此处为预测损失，
+
+    def cutting_tree(self, tdata):
+        pass
+
 
     
