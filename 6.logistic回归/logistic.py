@@ -30,15 +30,17 @@ class logisticRegression:
         self.w = np.random.uniform(size=(self.X.shape[1]))
 
     def _exp(self, x):
-        return np.exp(np.sum(self.w * x, axis=1)) 
+        # return np.exp(np.sum(self.w * x, axis=1)) 
+        return np.exp(self.w * x) 
     
     def fit(self, data):
         self._load_data(data)
         self._init_weights()
         for _ in range(self.loop):
-            gred = self._gradient()
-            new_w = self.w + self.lr * gred
-            self.w = new_w
+            for ind, x in enumerate(self.X):
+                gred = self._gradient(x, self.Y[ind])
+                new_w = self.w + self.lr * gred
+                self.w = new_w
 
     def predict(self, data):
         exp = self._exp(data)
@@ -48,9 +50,10 @@ class logisticRegression:
         return np.array([self.idY[i] for i in label.flatten()])
         
     
-    def _gradient(self):
-        tmp = self.X * self.Y - (self._exp(self.X) / (1 + self._exp(self.X))).reshape(self.X.shape[0], 1)
-        gred = np.sum(self.w * tmp, axis=0)
+    def _gradient(self, X, y):
+        # gred = self.X * self.Y - (self._exp(self.X) / (1 + self._exp(self.X))).reshape(self.X.shape[0], 1)
+        gred = X * y - (self._exp(X) / (1 + self._exp(X)))
+        # gred = np.sum(self.w * gred, axis=0)
         return gred
 
 
@@ -70,3 +73,4 @@ if __name__ == "__main__":
     data = np.concatenate([x, y], axis=1)
     lgr = logisticRegression()
     lgr.fit(data)
+    print(1)
