@@ -3,20 +3,30 @@ import numpy as np
 
 class SVM:
 
-    def __init__(self) -> None:
+    def __init__(self, kernel, C, sigma=None, p=None) -> None:
         self.alpha = None
         self.Y = None
         self.X = None
-        self.kernel = None
+        self.kernel = kernel
         self.b = None
-        self.C = None
-        self.p = None
-        self.sigma = None
-        self.epsilon = None
-        self.max_iter = None
+        self.C = C
+        self.p = p
+        self.sigma = sigma
+        self.max_iter = 300
+        self.idY = None
+        self.Yid = None
 
-    def load_data(self, data):
-        pass
+    def load_data(self, data: np.ndarray):
+        y = data[:, 0]
+        x = data[:, 1:]
+        labels = np.unique(y)
+        idY = {0: labels[0], 1: labels[1]}
+        Yid = {labels[0]: 0, labels[1]: 1}
+        y = (y == labels[1]).astype(int)
+        self.X = x
+        self.Y = y
+        self.idY = idY
+        self.Yid = Yid
 
     def fit(self):
         # 初始化
