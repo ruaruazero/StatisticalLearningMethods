@@ -1,16 +1,86 @@
 import numpy as np
 
 
+class Node:
+
+    def __init__(self, attr=None, label=None) -> None:
+        self.children = {}
+        self.attr = attr
+        self.label = label
+
+    def add_child(self, n, v):
+        self.children[v] = n
+
+
 class BaseModel:
 
     def __init__(self) -> None:
-         pass
+        pass
 
     def fit(self, args):
         pass
 
     def forward(self, X) -> np.ndarray:
         pass
+
+
+class DecisionStump(BaseModel):
+
+    def __init__(self) -> None:
+        self.root = None
+
+    def fit(self, X: np.ndarray, Y: np.ndarray, W: np.ndarray):
+        a = self._info_gain(X, Y, W)
+        attr_values = np.unique(X[:, a])
+        index = np.array([X[:a] == v for v in attr_values])
+        root = Node(attr=a)
+        leaf_Y = np.array([Y[i] for i in index])
+        for loc, leaf in enumerate(leaf_Y):
+            y_values = np.unique(leaf)
+            if y_values.shape[0] == 1:
+                label = y_values[0]
+            else:
+                counts = np.array([(leaf == v).astype(int).sum() for v in y_values])
+                label = y_values[np.argmax(counts)]
+            n = Node(label=label)
+            root.add_child(n, attr_values[loc])
+        self.root = root
+
+    
+    def forward(self, X: np.ndarray) -> np.ndarray:
+        X = X.flatten()
+        root = self.root
+        attr = root.attr
+        label = root.children[X[attr]].label
+        return label
+
+    
+    def _info_gain(self, X:np.ndarray, Y:np.ndarray, W:np.ndarray)->int:
+        e = self.entropy(Y, W)
+        gains = np.array([])
+        for c in range(X.shape[1]):
+            D_a = X[:, c].flatten()
+            values = np.unique(D_a)
+            g = np.array([])
+            for v in values:
+                index = D_a == v
+                r_v = W[index].sum() / W.sum()
+                Y_v = Y[index]
+                W_v = W[index]
+                g = np.append(g, r_v * self.entropy(Y_v, W_v))
+            gs = e - g.sum()
+            gains = np.append(gains, gs)
+        return np.argmax(gains)
+
+
+    @staticmethod
+    def entropy(Y: np.ndarray, W: np.ndarray):
+        values = np.unique(Y)
+        index = np.array([Y == v for v in values])
+        s = W.sum()
+        p = np.array([W[i].sum() for i in index])
+        p = p / s
+        return (-p * np.log2(p)).sum()
 
 
 class AdaBoost:
